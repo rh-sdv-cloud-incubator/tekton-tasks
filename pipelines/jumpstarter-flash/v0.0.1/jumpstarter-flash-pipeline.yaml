@@ -6,9 +6,32 @@ spec:
     finally:
       - name: release-lease
         when:
+          - input: "$(tekton.pipeline.status)"
+            operator: in
+            values: ["Failed", "Cancelled"]
+          - input: "true"
+            operator: in
+            values: ["true"]
+        params:
+          - name: jmp-lease-id
+            value: $(tasks.get-lease.results.jmp-lease-id)
+          - name: client-name
+            value: $(params.client-name)
+        taskRef:
+          kind: Task
+          name: jumpstarter-release-lease
+        workspaces:
+          - name: jumpstarter-client-secret
+            workspace: jumpstarter-client-secret
+
+      - name: release-lease-non-debug
+        when:
           - input: "$(params.debug-mode)"
             operator: notin
-            values: ["true", "TRUE"]
+            values: ["true"]
+          - input: "$(tekton.pipeline.status)"
+            operator: in
+            values: ["Succeeded"]
         params:
           - name: jmp-lease-id
             value: $(tasks.get-lease.results.jmp-lease-id)
