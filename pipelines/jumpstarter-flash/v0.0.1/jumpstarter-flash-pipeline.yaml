@@ -7,7 +7,7 @@ spec:
       - name: release-lease
         when:
           - input: "$(params.debug-mode)"
-            operator: notIn
+            operator: notin
             values: ["true", "TRUE"]
         params:
           - name: jmp-lease-id
